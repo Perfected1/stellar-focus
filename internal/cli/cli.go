@@ -379,7 +379,12 @@ archive holds envelopes and results but not transaction meta.`,
 				return err
 			}
 			return writeFixtures(cmd.Context(), src, records,
-				cfg.outDir(), cfg.prefix(), cfg.force(), cfg.maskAddresses(), cfg.sanitizer(), stdout)
+				cfg.outDir(), cfg.prefix(), cfg.force(), cfg.maskAddresses(), cfg.sanitizer(), stdout,
+				capture.FilterOptions{
+					MinOps:      cfg.minOps(),
+					OnlySoroban: cfg.onlySoroban(),
+					FailedOnly:  cfg.failedOnly(),
+				})
 		},
 	}
 
@@ -397,8 +402,12 @@ archive holds envelopes and results but not transaction meta.`,
 			if err != nil {
 				return err
 			}
+
+			// Ledger entries are not transactions, so the transaction filters
+			// do not apply to them.
 			return writeFixtures(cmd.Context(), src, records,
-				cfg.outDir(), cfg.prefix(), cfg.force(), cfg.maskAddresses(), cfg.sanitizer(), stdout)
+				cfg.outDir(), cfg.prefix(), cfg.force(), cfg.maskAddresses(), cfg.sanitizer(), stdout,
+				capture.FilterOptions{})
 		},
 	}
 
@@ -421,7 +430,15 @@ func writeFixtures(
 	force, maskAddresses bool,
 	sanitizer capture.Sanitizer,
 	stdout io.Writer,
+	fOpts capture.FilterOptions,
 ) error {
+	if fOpts.MinOps > 0 || fOpts.OnlySoroban || fOpts.FailedOnly {
+		var err error
+		records, err = capture.FilterRecords(records, fOpts)
+		if err != nil {
+			return usageErrorf("filtering records: %v", err)
+		}
+	}
 	written, err := writeRecords(ctx, src, records, outDir, prefix, force, maskAddresses, sanitizer)
 	if err != nil {
 		return err

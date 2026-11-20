@@ -1,0 +1,285 @@
+{
+  "format": "focus/verify-cache/v1",
+  "fixtures": {
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1108410982/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1108410982/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1118763319/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1118763319/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline112893867/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline112893867/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1266429421/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1266429421/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1334348697/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1334348697/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1368822572/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1368822572/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1756656371/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1756656371/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1789004942/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline1789004942/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline182394442/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline182394442/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2023524413/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2023524413/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2370284793/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2370284793/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline242773767/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline242773767/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2512127019/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2512127019/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2553141375/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2553141375/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2693731762/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline2693731762/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3135910548/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3135910548/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3513342826/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3513342826/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3632751438/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3632751438/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3720790188/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3720790188/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3785609269/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3785609269/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3984193878/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline3984193878/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline4237383586/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline4237383586/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline44586523/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline44586523/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline448018966/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline448018966/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline631018772/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline631018772/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline677119149/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline677119149/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline733815305/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline733815305/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline747338496/002/envelope.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "0e39ac7ad6a0a50bddba0227397753cc734b029cc73b236dd598f2f581e0daac"
+    },
+    "/tmp/TestFileSourceCapturesAndVerifiesOffline747338496/002/result.golden.json": {
+      "outcome": "ok",
+      "checkedAt": "2026-08-05T12:00:00Z",
+      "fingerprint": "dc629ef04e5a2e78d01d15f55afb1c28551808426e0dc93baf860a81b647552d"
+    }
+  }
+}

@@ -70,6 +70,8 @@ type Record struct {
 	// Sanitized marks XDR whose memos, data values or secret keys were
 	// masked by a Sanitizer.
 	Sanitized bool
+	// Failed marks a transaction whose results were all failures.
+	Failed bool
 }
 
 // Source fetches data from a network.
@@ -159,6 +161,246 @@ func (s *passphraseSource) NetworkPassphrase(ctx context.Context) (string, error
 // source that can use a ledger hint — an archive fallback — keeps the hint.
 func (s *passphraseSource) TransactionInLedger(ctx context.Context, hash string, ledger uint32) ([]Record, error) {
 	return FetchTransaction(ctx, s.Source, hash, ledger)
+}
+
+// FilterOptions tune which captured records are kept.
+//
+// They let a capture narrow a batch down to the transactions worth keeping:
+// the ones with many operations, the Soroban calls, or the failures. A filter
+// is applied to the records a source returns, before they are written to disk.
+type FilterOptions struct {
+	// MinOps keeps only transactions with at least this many operations.
+	MinOps int
+	// OnlySoroban keeps only Soroban transactions.
+	OnlySoroban bool
+	// FailedOnly keeps only transactions whose result code is a failure.
+	FailedOnly bool
+}
+
+// FilterRecords keeps only the records whose transactions pass every filter.
+//
+// Records are grouped by transaction hash, because a single transaction
+// produces several records — an envelope, a result and a meta — and filters
+// decide at the transaction level, not at the record level. A filter that
+// would have kept a transaction keeps all of its records; a filter that
+// would have dropped it drops all of them.
+func FilterRecords(records []Record, f FilterOptions) ([]Record, error) {
+	if f.MinOps <= 0 && !f.OnlySoroban && !f.FailedOnly {
+		return records, nil
+	}
+
+	txns := groupByTx(records)
+	var kept []Record
+	for _, tx := range txns {
+		if passes(tx, f) {
+			kept = append(kept, tx.records()...)
+		}
+	}
+	return kept, nil
+}
+
+// groupByTx gathers the records of one transaction together.
+//
+// A transaction is one envelope record, optionally followed by a result and a
+// meta — all sharing the same hash. Order is preserved within a transaction,
+// and transactions keep the order of their envelope's first appearance.
+func groupByTx(records []Record) []txn {
+	by := map[string]*txn{}
+	var order []string
+	for _, r := range records {
+		if isEnvelope(r) {
+			if _, seen := by[r.TxHash]; !seen {
+				order = append(order, r.TxHash)
+				by[r.TxHash] = &txn{hash: r.TxHash}
+			}
+			by[r.TxHash].env = r
+		} else if isResultMeta(r) {
+			if _, seen := by[r.TxHash]; !seen {
+				order = append(order, r.TxHash)
+				by[r.TxHash] = &txn{hash: r.TxHash}
+			}
+			switch r.Type {
+			case "TransactionResult":
+				by[r.TxHash].result = r
+			case "TransactionMeta":
+				by[r.TxHash].meta = r
+			}
+		}
+		// Records that are not envelopes, results or metas are ignored here;
+		// they are not part of a transaction and would not survive a filter that
+		// needs a transaction to decide.
+	}
+	var out []txn
+	for _, h := range order {
+		out = append(out, *by[h])
+	}
+	return out
+}
+
+// txn is one transaction's worth of records.
+type txn struct {
+	hash   string
+	env    Record
+	result Record
+	meta   Record
+}
+
+// records returns the records of a transaction, in envelope-first order.
+func (tx txn) records() []Record {
+	var out []Record
+	if tx.env.Type != "" {
+		out = append(out, tx.env)
+	}
+	if tx.result.Type != "" {
+		out = append(out, tx.result)
+	}
+	if tx.meta.Type != "" {
+		out = append(out, tx.meta)
+	}
+	return out
+}
+
+// passes reports whether a transaction survives every filter.
+func passes(tx txn, f FilterOptions) bool {
+	if f.MinOps > 0 {
+		n, err := operationCount(tx.env)
+		if err != nil {
+			return false
+		}
+		if n < f.MinOps {
+			return false
+		}
+	}
+	if f.OnlySoroban && !isSoroban(tx.env) {
+		return false
+	}
+	if f.FailedOnly && !isFailed(tx.result) {
+		return false
+	}
+	return true
+}
+
+// isSoroban reports whether a transaction talks to the Soroban host.
+//
+// The signal comes from the envelope: a Soroban transaction carries
+// SorobanTransactionData on its Transaction extension, or it contains an
+// invoke_host_function operation. V0 envelopes predate Soroban and never
+// carry Soroban data.
+func isSoroban(env Record) bool {
+	if env.Type != "TransactionEnvelope" || env.XDR == "" {
+		return false
+	}
+	e, err := decodeEnvelope(env.XDR)
+	if err != nil {
+		return false
+	}
+	switch e.Type {
+	case xdr.EnvelopeTypeEnvelopeTypeTxV0:
+		return false
+	case xdr.EnvelopeTypeEnvelopeTypeTx:
+		tx := e.V1.Tx
+		if tx.Ext.SorobanData != nil {
+			return true
+		}
+		for _, op := range tx.Operations {
+			if op.Body.Type == xdr.OperationTypeInvokeHostFunction {
+				return true
+			}
+		}
+		return false
+	case xdr.EnvelopeTypeEnvelopeTypeTxFeeBump:
+		inner := e.FeeBump.Tx.InnerTx.V1
+		if inner == nil {
+			return false
+		}
+		tx := inner.Tx
+		if tx.Ext.SorobanData != nil {
+			return true
+		}
+		for _, op := range tx.Operations {
+			if op.Body.Type == xdr.OperationTypeInvokeHostFunction {
+				return true
+			}
+		}
+		return false
+	default:
+		return false
+	}
+}
+
+// isFailed reports whether a transaction's result code is a failure.
+//
+// A result whose code is anything other than txSUCCESS is a failure: a
+// txFAILED transaction, a bad sequence, an insufficient fee, a Soroban
+// precondition the host rejected. Transactions with no result — such as a
+// capture that only kept the envelope — are not failures.
+func isFailed(result Record) bool {
+	if result.Type != "TransactionResult" || result.XDR == "" {
+		return false
+	}
+	res, err := decodeResult(result.XDR)
+	if err != nil {
+		return false
+	}
+	return res.Result.Code != xdr.TransactionResultCodeTxSuccess
+}
+
+// operationCount counts the operations a transaction carries.
+func operationCount(env Record) (int, error) {
+	e, err := decodeEnvelope(env.XDR)
+	if err != nil {
+		return 0, err
+	}
+	switch e.Type {
+	case xdr.EnvelopeTypeEnvelopeTypeTx:
+		return len(e.V1.Tx.Operations), nil
+	case xdr.EnvelopeTypeEnvelopeTypeTxFeeBump:
+		inner := e.FeeBump.Tx.InnerTx.V1
+		if inner == nil {
+			return 0, fmt.Errorf("fee bump envelope has no inner V1 transaction")
+		}
+		return len(inner.Tx.Operations), nil
+	case xdr.EnvelopeTypeEnvelopeTypeTxV0:
+		return len(e.V0.Tx.Operations), nil
+	default:
+		return 0, fmt.Errorf("envelope has unexpected type %v", e.Type)
+	}
+}
+
+// decodeEnvelope decodes an envelope XDR.
+func decodeEnvelope(b64 string) (xdr.TransactionEnvelope, error) {
+	var env xdr.TransactionEnvelope
+	raw, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return env, fmt.Errorf("decoding envelope: %w", err)
+	}
+	if _, err := xdr.Unmarshal(bytes.NewReader(raw), &env); err != nil {
+		return env, fmt.Errorf("decoding envelope: %w", err)
+	}
+	return env, nil
+}
+
+// decodeResult decodes a result XDR.
+func decodeResult(b64 string) (xdr.TransactionResult, error) {
+	var res xdr.TransactionResult
+	raw, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return res, fmt.Errorf("decoding result: %w", err)
+	}
+	if _, err = xdr.Unmarshal(bytes.NewReader(raw), &res); err != nil {
+		return res, fmt.Errorf("decoding result: %w", err)
+	}
+	return res, nil
+}
+
+// isEnvelope reports whether a record is a transaction envelope.
+func isEnvelope(r Record) bool {
+	return r.Type == "TransactionEnvelope"
+}
+
+// isResultMeta reports whether a record is a transaction result or meta.
+func isResultMeta(r Record) bool {
+	return r.Type == "TransactionResult" || r.Type == "TransactionMeta"
 }
 
 // Capture fetches items and turns them into fixtures, stamping each with the
