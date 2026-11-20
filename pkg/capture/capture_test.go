@@ -12,6 +12,7 @@ import (
 	"github.com/stellar-optics/stellar-focus/internal/fakesource"
 	"github.com/stellar-optics/stellar-focus/pkg/capture"
 	"github.com/stellar-optics/stellar-focus/pkg/golden"
+	"github.com/stellar/go-stellar-sdk/xdr"
 )
 
 func TestNewAccountLedgerKey(t *testing.T) {
@@ -399,4 +400,303 @@ func fixtureFromFile(t *testing.T, name string) string {
 		t.Fatalf("reading %s: %v", name, err)
 	}
 	return strings.TrimSpace(string(b))
+}
+
+// multiOpEnvelopeXDR builds a V1 envelope with the given number of payment
+// operations, for testing the --min-ops filter.
+func multiOpEnvelopeXDR(t *testing.T, n int) string {
+	t.Helper()
+	var ops []xdr.Operation
+	for i := 0; i < n; i++ {
+		ops = append(ops, xdr.Operation{
+			Body: xdr.OperationBody{
+				Type: xdr.OperationTypePayment,
+				PaymentOp: &xdr.PaymentOp{
+					Destination: xdr.MustMuxedAddress("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"),
+					Amount:      100,
+					Asset:       xdr.Asset{Type: xdr.AssetTypeAssetTypeNative},
+				},
+			},
+		})
+	}
+	tx := xdr.Transaction{
+		SourceAccount: xdr.MustMuxedAddress("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"),
+		Fee:           100,
+		SeqNum:        1,
+		Operations:    ops,
+	}
+	env, err := xdr.MarshalBase64(xdr.TransactionEnvelope{
+		Type: xdr.EnvelopeTypeEnvelopeTypeTx,
+		V1:   &xdr.TransactionV1Envelope{Tx: tx},
+	})
+	if err != nil {
+		t.Fatalf("encoding multiOpEnvelope: %v", err)
+	}
+	return env
+}
+
+// sorobanEnvelopeXDR returns a Soroban envelope fixture.
+func sorobanEnvelopeXDR(t *testing.T) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "pkg", "fuzz", "testdata", "tx_soroban.env.txt"))
+	if err != nil {
+		t.Fatalf("reading fixture: %v", err)
+	}
+	return strings.TrimSpace(string(b))
+}
+
+// failedResultXDR returns a failed result fixture.
+func failedResultXDR(t *testing.T) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "pkg", "fuzz", "testdata", "tx_failed.res.txt"))
+	if err != nil {
+		t.Fatalf("reading fixture: %v", err)
+	}
+	return strings.TrimSpace(string(b))
+}
+
+func ptrOf[T any](v T) *T { return &v }
+
+func mustEnvFile(t *testing.T, name string) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "pkg", "fuzz", "testdata", name))
+	if err != nil {
+		t.Fatalf("reading %s: %v", name, err)
+	}
+	return strings.TrimSpace(string(b))
+}
+func mustResFile(t *testing.T, name string) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "pkg", "fuzz", "testdata", name))
+	if err != nil {
+		t.Fatalf("reading %s: %v", name, err)
+	}
+	return strings.TrimSpace(string(b))
+}
+
+func mustEncodeSuccessResult(t *testing.T) string {
+	t.Helper()
+	res, err := xdr.MarshalBase64(xdr.TransactionResult{
+		FeeCharged: 100,
+		Result: xdr.TransactionResultResult{
+			Code:    xdr.TransactionResultCodeTxSuccess,
+			Results: ptrOf([]xdr.OperationResult{}),
+		},
+	})
+	if err != nil {
+		t.Fatalf("encoding success result: %v", err)
+	}
+	return res
+}
+
+// TestFilterRecordsMinOps keeps only the transactions with enough operations.
+func TestFilterRecordsMinOps(t *testing.T) {
+	t.Parallel()
+	src := fakesource.New(capture.NetworkTestnet, "https://fake.example")
+	hashA := "aaaa1111"
+	hashB := "bbbb2222"
+	t.Helper()
+	src.Transactions[hashA] = []capture.Record{{
+		Name: "envelope", Type: "TransactionEnvelope", XDR: envelopeXDR(t),
+		Ledger: 100, TxHash: hashA,
+	}}
+	src.Transactions[hashB] = []capture.Record{{
+		Name: "envelope", Type: "TransactionEnvelope", XDR: multiOpEnvelopeXDR(t, 2),
+		Ledger: 100, TxHash: hashB,
+	}}
+	records := []capture.Record{}
+	for _, h := range []string{hashA, hashB} {
+		records = append(records, src.Transactions[h]...)
+	}
+	kept, err := capture.FilterRecords(records, capture.FilterOptions{MinOps: 2})
+	if err != nil {
+		t.Fatalf("FilterRecords() error = %v", err)
+	}
+	if len(kept) != 1 {
+		t.Fatalf("kept %d records, want 1", len(kept))
+	}
+	if kept[0].TxHash != hashB {
+		t.Errorf("kept %s, want %s", kept[0].TxHash, hashB)
+	}
+}
+
+// diagnoseEnvelope prints info about an envelope.
+// TestFilterRecordsOnlySoroban keeps only the Soroban transactions.
+func TestFilterRecordsOnlySoroban(t *testing.T) {
+	t.Parallel()
+	src := fakesource.New(capture.NetworkTestnet, "https://fake.example")
+	hashNonSoroban := "classic01"
+	hashSoroban := "sor0001"
+	t.Helper()
+	src.Transactions[hashNonSoroban] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope",
+			XDR:    multiOpEnvelopeXDR(t, 1),
+			Ledger: 100, TxHash: hashNonSoroban,
+		},
+	}
+	src.Transactions[hashSoroban] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope",
+			XDR:    mustEnvFile(t, "tx_soroban.env.txt"),
+			Ledger: 100, TxHash: hashSoroban,
+		},
+	}
+	var records []capture.Record
+	for _, h := range []string{hashNonSoroban, hashSoroban} {
+		records = append(records, src.Transactions[h]...)
+	}
+	kept, err := capture.FilterRecords(records, capture.FilterOptions{OnlySoroban: true})
+	if err != nil {
+		t.Fatalf("FilterRecords() error = %v", err)
+	}
+	if len(kept) != 1 {
+		t.Fatalf("kept %d records, want 1", len(kept))
+	}
+	if kept[0].TxHash != hashSoroban {
+		t.Errorf("kept %s, want %s", kept[0].TxHash, hashSoroban)
+	}
+}
+
+// TestFilterRecordsFailedOnly keeps only the failed transactions.
+func TestFilterRecordsFailedOnly(t *testing.T) {
+	t.Parallel()
+	src := fakesource.New(capture.NetworkTestnet, "https://fake.example")
+	hashSuccess := "success01"
+	hashFailed := "fail0001"
+	t.Helper()
+	// Build a success result: code = txSUCCESS.
+	successRes, err := xdr.MarshalBase64(xdr.TransactionResult{
+		FeeCharged: 100,
+		Result: xdr.TransactionResultResult{
+			Code:    xdr.TransactionResultCodeTxSuccess,
+			Results: ptrOf([]xdr.OperationResult{}),
+		},
+	})
+	if err != nil {
+		t.Fatalf("encoding success result: %v", err)
+	}
+	src.Transactions[hashSuccess] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope",
+			XDR:    mustEnvFile(t, "tx_success.env.txt"),
+			Ledger: 100, TxHash: hashSuccess,
+		},
+		{
+			Name: "result", Type: "TransactionResult",
+			XDR:    successRes,
+			Ledger: 100, TxHash: hashSuccess,
+		},
+	}
+	src.Transactions[hashFailed] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope",
+			XDR:    mustEnvFile(t, "tx_failed.env.txt"),
+			Ledger: 100, TxHash: hashFailed,
+		},
+		{
+			Name: "result", Type: "TransactionResult",
+			XDR:    mustResFile(t, "tx_failed.res.txt"),
+			Ledger: 100, TxHash: hashFailed,
+		},
+	}
+	records := []capture.Record{}
+	for _, h := range []string{hashSuccess, hashFailed} {
+		records = append(records, src.Transactions[h]...)
+	}
+	kept, err := capture.FilterRecords(records, capture.FilterOptions{FailedOnly: true})
+	if err != nil {
+		t.Fatalf("FilterRecords() error = %v", err)
+	}
+	for _, r := range kept {
+		t.Logf("kept: %s %s", r.TxHash, r.Name)
+	}
+	if len(kept) != 2 {
+		t.Fatalf("kept %d records, want 2 (envelope + result for the failed tx)", len(kept))
+	}
+	for _, r := range kept {
+		if r.TxHash != hashFailed {
+			t.Errorf("kept a record for %s, want only %s", r.TxHash, hashFailed)
+		}
+	}
+}
+
+// TestFilterRecordsCompound applies all filters at once.
+func TestFilterRecordsCompound(t *testing.T) {
+	t.Parallel()
+	src := fakesource.New(capture.NetworkTestnet, "https://fake.example")
+	hashOne := "one0001"        // 1 op, classic
+	hashSoroban := "sor0001"    // soroban, 1 op
+	hashMulti := "mul0001"      // 5 ops, classic
+	hashSorobanFail := "sf0001" // soroban, 3 ops, failed
+	hashOk := "ok0001"          // classic, 1 op, succeeded
+	t.Helper()
+	src.Transactions[hashOne] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope", XDR: envelopeXDR(t),
+			Ledger: 100, TxHash: hashOne,
+		},
+	}
+	src.Transactions[hashSoroban] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope", XDR: sorobanEnvelopeXDR(t),
+			Ledger: 100, TxHash: hashSoroban,
+		},
+	}
+	src.Transactions[hashMulti] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope", XDR: multiOpEnvelopeXDR(t, 5),
+			Ledger: 100, TxHash: hashMulti,
+		},
+	}
+	src.Transactions[hashSorobanFail] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope", XDR: sorobanEnvelopeXDR(t),
+			Ledger: 100, TxHash: hashSorobanFail,
+		},
+		{
+			Name: "result", Type: "TransactionResult",
+			XDR:    failedResultXDR(t),
+			Ledger: 100, TxHash: hashSorobanFail,
+		},
+	}
+	src.Transactions[hashOk] = []capture.Record{
+		{
+			Name: "envelope", Type: "TransactionEnvelope", XDR: multiOpEnvelopeXDR(t, 1),
+			Ledger: 100, TxHash: hashOk,
+		},
+		{
+			Name: "result", Type: "TransactionResult", XDR: mustEncodeSuccessResult(t),
+			Ledger: 100, TxHash: hashOk,
+		},
+	}
+	records := []capture.Record{}
+	for _, h := range []string{hashOne, hashSoroban, hashMulti, hashSorobanFail, hashOk} {
+		records = append(records, src.Transactions[h]...)
+	}
+	// --min-ops 2 --only-soroban --failed-only: only failing Soroban
+	// transactions with at least two operations.
+	kept, err := capture.FilterRecords(records, capture.FilterOptions{
+		MinOps:      1,
+		OnlySoroban: true,
+		FailedOnly:  true,
+	})
+	if err != nil {
+		t.Fatalf("FilterRecords() error = %v", err)
+	}
+	for _, r := range kept {
+		t.Logf("kept: %s %s", r.TxHash, r.Name)
+	}
+	// hashSorobanFail is soroban and failed (1 op >= min-ops 1) -> kept.
+	// hashSoroban is soroban but no result -> dropped by failed-only.
+	// hashMulti has 5 ops but is classic -> dropped by only-soroban.
+	// hashOne is classic and no result -> dropped by only-soroban.
+	if len(kept) != 2 {
+		t.Fatalf("kept %d records, want 2 (envelope + result for the failing soroban tx)", len(kept))
+	}
+	for _, r := range kept {
+		if r.TxHash != hashSorobanFail {
+			t.Errorf("kept a record for %s, want only %s", r.TxHash, hashSorobanFail)
+		}
+	}
 }

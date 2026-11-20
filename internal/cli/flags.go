@@ -73,6 +73,9 @@ const (
 	keyFilter      = "filter"
 	keyDriftedOnly = "drifted-only"
 	keyVerifyCache = "verify-cache"
+	keyMinOps      = "min-ops"
+	keyOnlySoroban = "only-soroban"
+	keyFailedOnly  = "failed-only"
 )
 
 // The capture sources the command can talk to.
@@ -106,6 +109,9 @@ const (
 	defaultOutFile     = ""
 	defaultType        = ""
 	defaultDescription = ""
+	defaultMinOps      = 0
+	defaultOnlySoroban = false
+	defaultFailedOnly  = false
 )
 
 // discoveredConfigFiles are checked, in order, when --config is not given.
@@ -146,6 +152,9 @@ func newConfig() *config {
 	v.SetDefault(keyPass, defaultPass)
 	v.SetDefault(keyFileSrc, defaultFileSrc)
 	v.SetDefault(keyArchive, defaultArchive)
+	v.SetDefault(keyMinOps, defaultMinOps)
+	v.SetDefault(keyOnlySoroban, defaultOnlySoroban)
+	v.SetDefault(keyFailedOnly, defaultFailedOnly)
 
 	return &config{v: v}
 }
@@ -212,6 +221,12 @@ func (c *config) bindCaptureFlags(cmd *cobra.Command) {
 		"replace data entry values with "+capture.RedactedData)
 	flags.Bool(keyKeys, false,
 		"replace anything shaped like a secret key (S...) with "+capture.RedactedSecretKey)
+	flags.Int(keyMinOps, defaultMinOps,
+		"keep only transactions with at least this many operations")
+	flags.Bool(keyOnlySoroban, defaultOnlySoroban,
+		"keep only Soroban transactions")
+	flags.Bool(keyFailedOnly, defaultFailedOnly,
+		"keep only transactions whose result is a failure")
 
 	c.bind(flags, keyOut)
 	c.bind(flags, keyPrefix)
@@ -222,6 +237,9 @@ func (c *config) bindCaptureFlags(cmd *cobra.Command) {
 	c.bind(flags, keyMemoAlias)
 	c.bind(flags, keyData)
 	c.bind(flags, keyKeys)
+	c.bind(flags, keyMinOps)
+	c.bind(flags, keyOnlySoroban)
+	c.bind(flags, keyFailedOnly)
 }
 
 // bindVerifyFlags declares the flags that narrow what a verify run checks.
@@ -513,6 +531,21 @@ func (c *config) verifyCachePath() string {
 // deterministic mock accounts.
 func (c *config) maskAddresses() bool {
 	return c.v.GetBool(keyMask)
+}
+
+// minOps is the minimum number of operations a captured transaction must have.
+func (c *config) minOps() int {
+	return c.v.GetInt(keyMinOps)
+}
+
+// onlySoroban reports whether only Soroban transactions should be kept.
+func (c *config) onlySoroban() bool {
+	return c.v.GetBool(keyOnlySoroban)
+}
+
+// failedOnly reports whether only failed transactions should be kept.
+func (c *config) failedOnly() bool {
+	return c.v.GetBool(keyFailedOnly)
 }
 
 // batch is the file listing the transaction hashes to capture, or "-" for
